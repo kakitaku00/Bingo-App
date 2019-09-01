@@ -1,4 +1,4 @@
-# mc-bingo
+# bingo-app
 
 ## Project setup
 ```
