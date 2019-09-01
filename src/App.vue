@@ -1,66 +1,86 @@
 <template>
   <div id="app">
     <h1>BINGO</h1>
-    <bingo-button :count="count" :buttonText="buttonText" @action="action"></bingo-button>
-    <Panel :target="target" :bingo="bingo" :activeClass="activeClass"></Panel>
+    <p class="pickNumber">{{targetNum}}</p>
+    <input v-if="mode === 'stop'" type="button" value="spin" @click="spin()">
+    <input v-else-if="mode === 'spin'" type="button" value="stop" @click="stop()">
+    <input v-else type="button" value="reset" @click="reset()">
+    <ul class="panel">
+      <li v-for="num in bingoMaxNum" :class="activeClass.white" :id="[num]" :key="num">{{ num }} </li>
+    </ul>
   </div>
 </template>
 
 <script>
-import Panel from "./components/Panel.vue"
-import BingoButton from "./components/BingoButton.vue"
-
 export default {
   name: 'app',
-  components: {
-    Panel,
-    BingoButton
-  },
   data(){
     return {
-      count: 0,
+      mode: "stop",
       target: null,
-      bingo: 75,
+      targetNum: null,
+      bingoMaxNum: 75,
+      bingoNum: [],
+      buttonText: {
+        start: "start",
+        reset: "reset"
+      },
       activeClass: {
         white: "white",
         black: "black"
       },
-      buttonText: {
-        start: "start",
-        reset: "reset"
-      }
     }
   },
   methods: {
-    action: function() {
-      if (this.count === this.bingo) {
-        this.resetBingo();
-        return
+    spin: function() {
+      this.mode = "spin"
+      this.activeNumber()
+    },
+    stop: function() {
+      this.mode = "stop"
+      this.stopNumber(this.target)
+      this.pickNumber()
+      this.styleNumber()
+      if(!this.bingoNum.length) {
+        this.mode = "reset"
       }
-      const num = this.targetNum();
-      const targetEl = document.getElementById(num);
+    },
+    reset: function() {
 
-      if (targetEl.classList.contains("white")) {
-        this.target = num;
-        targetEl.classList.remove(this.activeClass.white);
-        targetEl.classList.add(this.activeClass.black);
-        this.count++;
-      } else {
-        this.action();
-      }
     },
-    targetNum: function() {
-      var num = Math.floor( Math.random() * this.bingo + 1);
-      return num;
+    createBingoNumber: function() {
+      return [...Array(this.bingoMaxNum).keys()].map(i => ++i)
     },
-    resetBingo: function() {
-      this.count = 0;
-      this.target = "";
-      for(let i = 1; i < this.bingo + 1; i++) {
-        document.getElementById(i).classList.replace(this.activeClass.black, this.activeClass.white)
-      }
+    randomNumber: function() {
+      return Math.floor(Math.random() * this.bingoNum.length)
+    },
+    selectNumber: function() {
+      const target = this.randomNumber()
+      return this.bingoNum[target]
+    },
+    activeNumber: function() {
+      this.target = setInterval(() => {
+        this.targetNum = this.selectNumber()
+      }, 100);
+    },
+    stopNumber: function(target) {
+      clearInterval(target);
+    },
+    pickNumber: function() {
+      const selectedBingoNum = this.bingoNum.filter((num) => {
+        return num !== this.targetNum
+      })
+      this.bingoNum = selectedBingoNum
+    },
+    styleNumber: function() {
+      const targetEl = document.getElementById(this.targetNum)
+      targetEl.classList.remove(this.activeClass.white);
+      targetEl.classList.add(this.activeClass.black);
     }
   },
+  created() {
+    this.bingoNum = this.createBingoNumber()
+  }
 }
 </script>
 
@@ -84,6 +104,17 @@ ul {
   height: 50px;
   color: #fff;
   background-color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pickNumber {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 20px;
+  border: 1px solid #333;
+  border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
