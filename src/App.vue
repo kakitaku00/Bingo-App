@@ -8,6 +8,10 @@
     <ul class="panel">
       <li v-for="num in bingoMaxNum" :class="activeClass.white" :id="[num]" :key="num">{{ num }} </li>
     </ul>
+    <div class="bingoCard">
+      <input type="button" value="create carde" @click="createBingoCard()">
+      <div class="bingoCard_contents"></div>
+    </div>
   </div>
 </template>
 
@@ -17,10 +21,12 @@ export default {
   data(){
     return {
       mode: "stop",
+      bingoString: "BINGO",
       target: null,
       targetNum: null,
       bingoMaxNum: 75,
       bingoNum: [],
+      bingoCardNumber: [],
       buttonText: {
         start: "start",
         reset: "reset"
@@ -76,7 +82,20 @@ export default {
       const targetEl = document.getElementById(this.targetNum)
       targetEl.classList.remove(this.activeClass.white);
       targetEl.classList.add(this.activeClass.black);
-    }
+    },
+    createBingoCard: function() {
+      this.createBingCardNumber()
+    },
+    createBingCardNumber: function() {
+      const sliceNum = this.bingoMaxNum / 5
+      const bingoStringSplit = this.bingoString.split('')
+      let idx = 0;
+      for (let i = 0; i < this.bingoNum.length; i += sliceNum) {
+        let splitNumberList = this.bingoNum.slice(i, i + sliceNum)
+        this.bingoCardNumber[bingoStringSplit[idx]] = splitNumberList
+        idx++
+      }
+    },
   },
   created() {
     this.bingoNum = this.createBingoNumber()
