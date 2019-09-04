@@ -104,8 +104,8 @@ export default {
     createBingCardNumber: function() {
       const sliceNum = this.bingoMaxNum / 5
       const bingoStringSplit = this.bingoString.split('')
+      const pickNum = 5
       let idx = 0;
-      let pickNum = 5
       for (let i = 0; i < this.bingoNum.length; i += sliceNum) {
         let splitNumberList = this.bingoNum.slice(i, i + sliceNum)
         let resultNumbers = this.choiceNumber(splitNumberList, pickNum)
@@ -144,6 +144,7 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+
 ul {
   list-style: none;
   padding: 0;
