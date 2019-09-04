@@ -6,11 +6,22 @@
     <input v-else-if="mode === 'spin'" type="button" value="stop" @click="stop()">
     <input v-else type="button" value="reset" @click="reset()">
     <ul class="panel">
-      <li v-for="num in bingoMaxNum" :class="activeClass.white" :id="[num]" :key="num">{{ num }} </li>
+      <li v-for="num in bingoMaxNum" :class="[activeClass.white, `number-${num}`]" :id="[num]" :key="num">{{ num }}</li>
     </ul>
     <div class="bingoCard">
       <input type="button" value="create carde" @click="createBingoCard()">
-      <div class="bingoCard_contents"></div>
+      <div class="bingoCard_contents">
+        <table>
+          <thead class="bingo_head">
+            <tr v-for="(head, index) in bingoCardNumber" :key="index"><th>{{ head.title }}</th></tr>
+          </thead>
+          <tbody class="bingo_body">
+            <tr class="bingo_num" v-for="(body, index) in bingoCardNumber" :key="index">
+              <td v-for="(num, index) in body.number" :key="index" :class="[activeClass.white, `number-${num}`]">{{ num }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>
@@ -79,23 +90,44 @@ export default {
       this.bingoNum = selectedBingoNum
     },
     styleNumber: function() {
-      const targetEl = document.getElementById(this.targetNum)
-      targetEl.classList.remove(this.activeClass.white);
-      targetEl.classList.add(this.activeClass.black);
+      const targetElements = document.querySelectorAll(`.number-${this.targetNum}`)
+      targetElements.forEach(el => {
+        el.classList.remove(this.activeClass.white);
+        el.classList.add(this.activeClass.black);
+      })
     },
     createBingoCard: function() {
       this.createBingCardNumber()
+      console.log(this.bingoCardNumber)
+      this.choiceNumber()
     },
     createBingCardNumber: function() {
       const sliceNum = this.bingoMaxNum / 5
       const bingoStringSplit = this.bingoString.split('')
       let idx = 0;
+      let pickNum = 5
       for (let i = 0; i < this.bingoNum.length; i += sliceNum) {
         let splitNumberList = this.bingoNum.slice(i, i + sliceNum)
-        this.bingoCardNumber[bingoStringSplit[idx]] = splitNumberList
+        let resultNumbers = this.choiceNumber(splitNumberList, pickNum)
+        if (idx === 2) {
+          resultNumbers.splice(2, 1, "-")
+        }
+        this.bingoCardNumber.push({
+          title: bingoStringSplit[idx],
+          number: resultNumbers
+        })
         idx++
       }
     },
+    choiceNumber: function(numbers, pickNum) {
+      const resultNumber = []
+      for(let i = 0; i < pickNum; i++) {
+        let choiceIdx = Math.floor(Math.random() * numbers.length)
+        resultNumber.push(numbers[choiceIdx])
+        numbers.splice(choiceIdx, 1)
+      }
+      return resultNumber
+    }
   },
   created() {
     this.bingoNum = this.createBingoNumber()
@@ -157,5 +189,15 @@ ul {
 .black {
   color: #fff;
   background-color: #333;
+}
+
+.bingo_num {
+  display: flex;
+  flex-direction: column;
+}
+
+.bingo_head,
+.bingo_body {
+  display: flex;
 }
 </style>
