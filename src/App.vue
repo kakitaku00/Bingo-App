@@ -1,27 +1,38 @@
 <template>
   <div id="app">
-    <h1>BINGO</h1>
-    <p class="pickNumber">{{targetNum}}</p>
-    <input v-if="mode === 'stop'" type="button" value="spin" @click="spin()">
-    <input v-else-if="mode === 'spin'" type="button" value="stop" @click="stop()">
-    <input v-else type="button" value="reset" @click="reset()">
-    <ul class="panel">
-      <li v-for="num in bingoMaxNum" :class="[activeClass.white, `number-${num}`]" :id="[num]" :key="num">{{ num }}</li>
-    </ul>
-    <div class="bingoCard">
-      <input type="button" value="create carde" @click="createBingoCard()">
-      <div class="bingoCard_contents">
-        <table>
-          <thead class="bingo_head">
-            <tr v-for="(head, index) in bingoCardNumber" :key="index"><th>{{ head.title }}</th></tr>
-          </thead>
-          <tbody class="bingo_body">
-            <tr class="bingo_num" v-for="(body, index) in bingoCardNumber" :key="index">
-              <td v-for="(num, index) in body.number" :key="index" :class="[activeClass.white, `number-${num}`]">{{ num }}</td>
-            </tr>
-          </tbody>
-        </table>
+    <header class="header">
+      <h1>BINGO</h1>
+    </header>
+    <div class="bingo_container">
+      <div class="bingo_roulette">
+        <p class="pickNumber">{{targetNum}}</p>
+        <input v-if="mode === 'stop'" v-bind:disabled="!decision" type="button" value="spin" @click="spin">
+        <input v-else-if="mode === 'spin'" type="button" value="stop" @click="stop">
+        <input v-else type="button" value="reset" @click="reset()">
+        <ul class="panel">
+          <li v-for="num in bingoMaxNum" :class="[activeClass.white, `number-${num}`]" :id="[num]" :key="num">{{ num }}</li>
+        </ul>
       </div>
+      <div class="bingoCard">
+        <input v-if="!bingoCardNumber.length" type="button" value="create carde" @click="createBingoCard">
+        <input v-else type="button" v-bind:disabled="decision" value="change carde" @click="createBingoCard">
+        <input v-show="bingoCardNumber.length" v-bind:disabled="decision" type="button" value="決定" @click="decisionCard">
+        <div class="bingoCard_content" :class="[!bingoCardNumber.length ? 'is-hide' : '']">
+          <table class="bingoCard_table">
+            <thead class="bingoCard_head">
+              <tr v-for="(head, index) in bingoCardNumber" :key="index"><th>{{ head.title }}</th></tr>
+            </thead>
+            <tbody class="bingoCard_body">
+              <tr class="bingoCard_num" v-for="(body, index) in bingoCardNumber" :key="index">
+                <td v-for="(num, index) in body.number" :key="index" :class="[activeClass.white, `number-${num}`]">{{ num }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="resetButton">
+      <input type="button" value="reset" @click="reset">
     </div>
   </div>
 </template>
@@ -38,6 +49,7 @@ export default {
       bingoMaxNum: 75,
       bingoNum: [],
       bingoCardNumber: [],
+      decision: false,
       buttonText: {
         start: "start",
         reset: "reset"
@@ -63,9 +75,13 @@ export default {
       }
     },
     reset: function() {
-
+      this.decision = false
+      this.bingoCardNumber = []
+      this.resetStyleNumber()
+      this.bingoNum = this.createBingoNumber()
     },
     createBingoNumber: function() {
+      // 1からbingoMaxNumまでの配列を作成(1から欲しいので1++)
       return [...Array(this.bingoMaxNum).keys()].map(i => ++i)
     },
     randomNumber: function() {
@@ -96,9 +112,16 @@ export default {
         el.classList.add(this.activeClass.black);
       })
     },
+    resetStyleNumber: function() {
+      const targetElements = document.querySelectorAll(`.${this.activeClass.black}`)
+      targetElements.forEach(el => {
+        el.classList.remove(this.activeClass.black);
+        el.classList.add(this.activeClass.white);
+      })
+    },
     createBingoCard: function() {
+      this.bingoCardNumber = []
       this.createBingCardNumber()
-      console.log(this.bingoCardNumber)
       this.choiceNumber()
     },
     createBingCardNumber: function() {
@@ -127,6 +150,9 @@ export default {
         numbers.splice(choiceIdx, 1)
       }
       return resultNumber
+    },
+    decisionCard: function() {
+      this.decision = true
     }
   },
   created() {
@@ -142,12 +168,29 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+}
+
+.header {
+  padding: 20px;
+  background-color: #333;
+}
+
+.header > h1 {
+  font-weight: bold;
+  color: #fff;
 }
 
 ul {
   list-style: none;
   padding: 0;
+}
+
+.is-show {
+  display: block;
+}
+
+.is-hide {
+  display: none;
 }
 
 .view {
@@ -192,13 +235,67 @@ ul {
   background-color: #333;
 }
 
-.bingo_num {
+.bingo_container {
   display: flex;
-  flex-direction: column;
+  justify-content: space-around;
+  max-width: 980px;
+  margin: 50px auto;
 }
 
-.bingo_head,
-.bingo_body {
-  display: flex;
+.bingoCard {
+  width: 100%;
+  max-width: 300px;
 }
+
+.bingoCard_content {
+  margin-top: 30px;
+}
+
+.bingoCard_table {
+  display: block;
+  margin: 0 auto;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 4px 10px #ccc;
+}
+
+.bingoCard_head,
+.bingoCard_body {
+  display: flex;
+  justify-content: space-between;
+}
+
+.bingoCard_head tr {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bingoCard_head th {
+  font-weight: bold;
+}
+
+.bingoCard_num {
+  width: 20%;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.bingoCard_body td {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bingoCard_head {
+  background-color: #ccc;
+}
+
+
 </style>
