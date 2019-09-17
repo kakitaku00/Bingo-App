@@ -6,17 +6,19 @@
     <div class="bingo_container">
       <div class="bingo_roulette">
         <p class="pickNumber">{{targetNum}}</p>
-        <input v-if="mode === 'stop'" v-bind:disabled="!decision" type="button" value="spin" @click="spin">
-        <input v-else-if="mode === 'spin'" type="button" value="stop" @click="stop">
-        <input v-else type="button" value="reset" @click="reset()">
+        <input v-if="mode === 'stop'" v-bind:disabled="!decision" type="button" class="btn" value="SPIN" @click="spin">
+        <input v-else-if="mode === 'spin'" type="button" class="btn" value="STOP" @click="stop">
+        <input v-else type="button" class="btn" value="RESET" @click="reset">
         <ul class="panel">
           <li v-for="num in bingoMaxNum" :class="[activeClass.white, `number-${num}`]" :id="[num]" :key="num">{{ num }}</li>
         </ul>
       </div>
       <div class="bingoCard">
-        <input v-if="!bingoCardNumber.length" type="button" value="create carde" @click="createBingoCard">
-        <input v-else type="button" v-bind:disabled="decision" value="change carde" @click="createBingoCard">
-        <input v-show="bingoCardNumber.length" v-bind:disabled="decision" type="button" value="決定" @click="decisionCard">
+        <div class="bingoCard_btn">
+          <input v-if="!bingoCardNumber.length" type="button" class="btn" value="CREATE CARD" @click="createBingoCard">
+          <input v-else type="button" class="btn" v-bind:disabled="decision" value="CHANGE" @click="createBingoCard">
+          <input v-if="bingoCardNumber.length" v-bind:disabled="decision" type="button" class="btn" value="DECIDE" @click="decisionCard">
+        </div>
         <div class="bingoCard_content" :class="[!bingoCardNumber.length ? 'is-hide' : '']">
           <table class="bingoCard_table">
             <thead class="bingoCard_head">
@@ -32,7 +34,7 @@
       </div>
     </div>
     <div class="resetButton">
-      <input type="button" value="reset" @click="reset">
+      <input type="button" class="btn" value="RESET" @click="reset">
     </div>
   </div>
 </template>
@@ -170,6 +172,17 @@ export default {
   color: #2c3e50;
 }
 
+.btn {
+  padding: 10px 20px;
+  font-weight: bold;
+  background-color: #f5f5f5;
+  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+}
+
+.btn + .btn {
+  margin-top: 10px;
+}
+
 .header {
   padding: 20px;
   background-color: #333;
@@ -245,6 +258,12 @@ ul {
 .bingoCard {
   width: 100%;
   max-width: 300px;
+}
+
+.bingoCard_btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .bingoCard_content {
