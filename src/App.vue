@@ -79,6 +79,7 @@ export default {
     reset: function() {
       this.decision = false
       this.bingoCardNumber = []
+      this.targetNum = null
       this.resetStyleNumber()
       this.bingoNum = this.createBingoNumber()
     },
