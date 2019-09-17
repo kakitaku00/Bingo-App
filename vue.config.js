@@ -1,3 +1,4 @@
 module.exports = {
-    outputDir: 'docs', // 1. 出力先
+  publicPath: '/Bingo-App/',
+  outputDir: 'docs', // 1. 出力先
 }
