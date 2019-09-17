@@ -1,5 +1,9 @@
 # bingo-app
 
+## URL
+GitHubPages
+https://kakitaku00.github.io/Bingo-App/
+
 ## Project setup
 ```
 yarn install
